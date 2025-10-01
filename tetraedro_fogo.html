@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+      
+      body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #1A1A2E;
+        color: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      
+      .content-area {
+        display: flex;
+        flex: 1;
+      }
+      
+      .text-content {
+        width: 60%;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .image-area {
+        width: 40%;
+        min-height: 600px;
+      }
+      
+      .highlight {
+        color: #E94560;
+      }
+      
+      .secondary-highlight {
+        color: #F9C74F;
+      }
+      
+      .title-bar {
+        border-left: 8px solid #E94560;
+        padding-left: 20px;
+        margin-bottom: 30px;
+        background: linear-gradient(90deg, rgba(233,69,96,0.1) 0%, rgba(22,33,62,0) 100%);
+      }
+      
+      .tetrahedron-container {
+        height: 300px;
+        margin: 20px 0;
+        position: relative;
+      }
+      
+      .element-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      
+      .element-box {
+        background-color: #16213E;
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+      
+      .element-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+      }
+      
+      .element-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+      }
+      
+      .progress-bar {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 4px;
+        background: #16213E;
+        border-radius: 2px;
+      }
+      
+      .progress-indicator {
+        height: 100%;
+        width: 25%;
+        background: #E94560;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="text-content">
+          <div class="title-bar">
+            <h1 class="text-4xl font-bold mb-4">Tetraedro do Fogo</h1>
+          </div>
+          
+          <p class="text-xl mb-4">
+            O conceito moderno de combustão é representado pelo <span class="highlight font-semibold">Tetraedro do Fogo</span>, que evoluiu do antigo "Triângulo do Fogo" ao incluir um quarto elemento essencial:
+          </p>
+          
+          <div class="tetrahedron-container" id="tetrahedron"></div>
+          
+          <div class="element-grid">
+            <div class="element-box" id="combustivel-box">
+              <i class="fas fa-fire element-icon" style="color: #E94560;"></i>
+              <div>
+                <h3 class="text-xl font-semibold highlight">Combustível</h3>
+                <p class="text-sm">Substância que pode queimar</p>
+              </div>
+            </div>
+            
+            <div class="element-box" id="comburente-box">
+              <i class="fas fa-wind element-icon" style="color: #4D908E;"></i>
+              <div>
+                <h3 class="text-xl font-semibold" style="color: #4D908E;">Comburente</h3>
+                <p class="text-sm">Oxigênio que permite a combustão</p>
+              </div>
+            </div>
+            
+            <div class="element-box" id="calor-box">
+              <i class="fas fa-temperature-high element-icon" style="color: #F9C74F;"></i>
+              <div>
+                <h3 class="text-xl font-semibold secondary-highlight">Calor</h3>
+                <p class="text-sm">Energia necessária para iniciar</p>
+              </div>
+            </div>
+            
+            <div class="element-box" id="reacao-box">
+              <i class="fas fa-atom element-icon" style="color: #FFFFFF;"></i>
+              <div>
+                <h3 class="text-xl font-semibold">Reação em Cadeia</h3>
+                <p class="text-sm">Processo que sustenta o fogo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="image-area">
+          <!-- Espaço reservado para imagem a ser adicionada posteriormente no Canva -->
+        </div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Configuração do SVG para o tetraedro
+        const width = document.querySelector('.tetrahedron-container').offsetWidth;
+        const height = document.querySelector('.tetrahedron-container').offsetHeight;
+        
+        const svg = d3.select('#tetrahedron')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+        
+        // Pontos do tetraedro em 2D (simplificado)
+        const points = [
+          { x: width/2, y: 50 },            // Topo
+          { x: width/4, y: height-80 },     // Esquerda
+          { x: 3*width/4, y: height-80 },   // Direita
+          { x: width/2, y: height/2+50 }    // Centro (representando o ponto de trás)
+        ];
+        
+        // Desenhar as linhas do tetraedro
+        svg.append('line')
+          .attr('x1', points[0].x)
+          .attr('y1', points[0].y)
+          .attr('x2', points[1].x)
+          .attr('y2', points[1].y)
+          .attr('stroke', '#E94560')
+          .attr('stroke-width', 3);
+        
+        svg.append('line')
+          .attr('x1', points[0].x)
+          .attr('y1', points[0].y)
+          .attr('x2', points[2].x)
+          .attr('y2', points[2].y)
+          .attr('stroke', '#4D908E')
+          .attr('stroke-width', 3);
+        
+        svg.append('line')
+          .attr('x1', points[0].x)
+          .attr('y1', points[0].y)
+          .attr('x2', points[3].x)
+          .attr('y2', points[3].y)
+          .attr('stroke', '#F9C74F')
+          .attr('stroke-width', 3);
+        
+        svg.append('line')
+          .attr('x1', points[1].x)
+          .attr('y1', points[1].y)
+          .attr('x2', points[2].x)
+          .attr('y2', points[2].y)
+          .attr('stroke', '#FFFFFF')
+          .attr('stroke-width', 3);
+        
+        svg.append('line')
+          .attr('x1', points[1].x)
+          .attr('y1', points[1].y)
+          .attr('x2', points[3].x)
+          .attr('y2', points[3].y)
+          .attr('stroke', '#FFFFFF')
+          .attr('stroke-width', 3);
+        
+        svg.append('line')
+          .attr('x1', points[2].x)
+          .attr('y1', points[2].y)
+          .attr('x2', points[3].x)
+          .attr('y2', points[3].y)
+          .attr('stroke', '#FFFFFF')
+          .attr('stroke-width', 3);
+        
+        // Adicionar círculos nos vértices
+        svg.selectAll('circle')
+          .data(points)
+          .enter()
+          .append('circle')
+          .attr('cx', d => d.x)
+          .attr('cy', d => d.y)
+          .attr('r', 8)
+          .attr('fill', (d, i) => {
+            const colors = ['#F9C74F', '#E94560', '#4D908E', '#FFFFFF'];
+            return colors[i];
+          });
+        
+        // Adicionar rótulos
+        const labels = ['Calor', 'Combustível', 'Comburente', 'Reação em Cadeia'];
+        const labelOffsets = [
+          { dx: 0, dy: -25 },
+          { dx: -70, dy: 20 },
+          { dx: 70, dy: 20 },
+          { dx: 0, dy: 30 }
+        ];
+        
+        svg.selectAll('text')
+          .data(points)
+          .enter()
+          .append('text')
+          .attr('x', (d, i) => d.x + labelOffsets[i].dx)
+          .attr('y', (d, i) => d.y + labelOffsets[i].dy)
+          .text((d, i) => labels[i])
+          .attr('text-anchor', 'middle')
+          .attr('fill', (d, i) => {
+            const colors = ['#F9C74F', '#E94560', '#4D908E', '#FFFFFF'];
+            return colors[i];
+          })
+          .attr('font-family', 'Montserrat')
+          .attr('font-size', '14px');
+        
+        // Interatividade com os elementos
+        document.getElementById('combustivel-box').addEventListener('mouseover', function() {
+          highlightElement(1);
+        });
+        
+        document.getElementById('comburente-box').addEventListener('mouseover', function() {
+          highlightElement(2);
+        });
+        
+        document.getElementById('calor-box').addEventListener('mouseover', function() {
+          highlightElement(0);
+        });
+        
+        document.getElementById('reacao-box').addEventListener('mouseover', function() {
+          highlightElement(3);
+        });
+        
+        function highlightElement(index) {
+          svg.selectAll('circle')
+            .attr('r', (d, i) => i === index ? 12 : 8)
+            .attr('stroke', (d, i) => i === index ? '#FFFFFF' : 'none')
+            .attr('stroke-width', 2);
+          
+          svg.selectAll('text')
+            .attr('font-weight', (d, i) => i === index ? 'bold' : 'normal')
+            .attr('font-size', (d, i) => i === index ? '16px' : '14px');
+        }
+      });
+    </script>
+  <script src="navegacao.js"></script></body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+      
+      body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #1A1A2E;
+        color: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      
+      .content-area {
+        display: flex;
+        flex: 1;
+      }
+      
+      .text-content {
+        width: 60%;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .image-area {
+        width: 40%;
+        min-height: 600px;
+      }
+      
+      .highlight {
+        color: #E94560;
+      }
+      
+      .secondary-highlight {
+        color: #F9C74F;
+      }
+      
+      .title-bar {
+        border-left: 8px solid #E94560;
+        padding-left: 20px;
+        margin-bottom: 30px;
+        background: linear-gradient(90deg, rgba(233,69,96,0.1) 0%, rgba(22,33,62,0) 100%);
+      }
+      
+      .comparison-container {
+        display: flex;
+        margin: 20px 0;
+        gap: 20px;
+      }
+      
+      .combustion-type {
+        flex: 1;
+        background-color: #16213E;
+        padding: 20px;
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .combustion-type::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+      }
+      
+      .complete::before {
+        background-color: #4D908E;
+      }
+      
+      .incomplete::before {
+        background-color: #E94560;
+      }
+      
+      .flame-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+      
+      .characteristics {
+        margin-top: 15px;
+      }
+      
+      .characteristic {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      
+      .characteristic i {
+        margin-right: 10px;
+        font-size: 1rem;
+      }
+      
+      .chart-container {
+        height: 200px;
+        margin-top: 20px;
+      }
+      
+      .progress-bar {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 4px;
+        background: #16213E;
+        border-radius: 2px;
+      }
+      
+      .progress-indicator {
+        height: 100%;
+        width: 37.5%;
+        background: #E94560;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="text-content">
+          <div class="title-bar">
+            <h1 class="text-4xl font-bold mb-4">Tipos de Combustão</h1>
+          </div>
+          
+          <p class="text-xl mb-4">
+            Existem dois tipos principais de combustão, que se diferenciam pela quantidade de oxigênio disponível e pelos produtos formados:
+          </p>
+          
+          <div class="comparison-container">
+            <div class="combustion-type complete">
+              <i class="fas fa-fire flame-icon" style="color: #4D908E;"></i>
+              <h3 class="text-2xl font-semibold" style="color: #4D908E;">Combustão Completa</h3>
+              <p class="text-lg mt-2">
+                Ocorre quando há oxigênio em quantidade suficiente para reagir com todo o combustível.
+              </p>
+              <div class="characteristics">
+                <div class="characteristic">
+                  <i class="fas fa-check-circle" style="color: #4D908E;"></i>
+                  <span>Chama azul</span>
+                </div>
+                <div class="characteristic">
+                  <i class="fas fa-check-circle" style="color: #4D908E;"></i>
+                  <span>Maior liberação de energia</span>
+                </div>
+                <div class="characteristic">
+                  <i class="fas fa-check-circle" style="color: #4D908E;"></i>
+                  <span>Produtos: CO₂ e H₂O</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="combustion-type incomplete">
+              <i class="fas fa-fire-alt flame-icon highlight"></i>
+              <h3 class="text-2xl font-semibold highlight">Combustão Incompleta</h3>
+              <p class="text-lg mt-2">
+                Ocorre quando o oxigênio é insuficiente para reagir com todo o combustível.
+              </p>
+              <div class="characteristics">
+                <div class="characteristic">
+                  <i class="fas fa-exclamation-circle highlight"></i>
+                  <span>Chama amarela/laranja</span>
+                </div>
+                <div class="characteristic">
+                  <i class="fas fa-exclamation-circle highlight"></i>
+                  <span>Menor liberação de energia</span>
+                </div>
+                <div class="characteristic">
+                  <i class="fas fa-exclamation-circle highlight"></i>
+                  <span>Produtos: CO, C e H₂O</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <canvas id="comparisonChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="image-area">
+          <!-- Espaço reservado para imagem a ser adicionada posteriormente no Canva -->
+        </div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        
+        const comparisonChart = new Chart(ctx, {
+          type: 'radar',
+          data: {
+            labels: ['Eficiência Energética', 'Emissão de Poluentes', 'Temperatura da Chama', 'Oxigênio Necessário'],
+            datasets: [
+              {
+                label: 'Combustão Completa',
+                data: [90, 30, 85, 80],
+                backgroundColor: 'rgba(77, 144, 142, 0.2)',
+                borderColor: '#4D908E',
+                pointBackgroundColor: '#4D908E',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#4D908E'
+              },
+              {
+                label: 'Combustão Incompleta',
+                data: [50, 80, 60, 40],
+                backgroundColor: 'rgba(233, 69, 96, 0.2)',
+                borderColor: '#E94560',
+                pointBackgroundColor: '#E94560',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#E94560'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat'
+                  }
+                }
+              },
+              tooltip: {
+                backgroundColor: '#16213E',
+                titleColor: '#FFFFFF',
+                bodyColor: '#FFFFFF',
+                titleFont: {
+                  family: 'Montserrat',
+                  size: 14
+                },
+                bodyFont: {
+                  family: 'Montserrat',
+                  size: 12
+                }
+              }
+            },
+            scales: {
+              r: {
+                angleLines: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                pointLabels: {
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat',
+                    size: 12
+                  }
+                },
+                ticks: {
+                  backdropColor: 'transparent',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  font: {
+                    family: 'Montserrat',
+                    size: 10
+                  }
+                }
+              }
+            }
+          }
+        });
+      });
+    </script>
+  <script src="navegacao.js"></script></body>
+</html>

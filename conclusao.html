@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+      
+      body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #1A1A2E;
+        color: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      
+      .content-area {
+        display: flex;
+        flex: 1;
+      }
+      
+      .text-content {
+        width: 60%;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .image-area {
+        width: 40%;
+        min-height: 600px;
+      }
+      
+      .highlight {
+        color: #E94560;
+      }
+      
+      .secondary-highlight {
+        color: #F9C74F;
+      }
+      
+      .title-bar {
+        border-left: 8px solid #E94560;
+        padding-left: 20px;
+        margin-bottom: 30px;
+        background: linear-gradient(90deg, rgba(233,69,96,0.1) 0%, rgba(22,33,62,0) 100%);
+      }
+      
+      .timeline-container {
+        height: 180px;
+        margin: 20px 0;
+        position: relative;
+      }
+      
+      .conclusion-points {
+        margin-top: 20px;
+      }
+      
+      .conclusion-point {
+        background-color: #16213E;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+      
+      .conclusion-point:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(233, 69, 96, 0.2);
+      }
+      
+      .point-icon {
+        font-size: 1.8rem;
+        margin-right: 15px;
+      }
+      
+      .progress-bar {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 4px;
+        background: #16213E;
+        border-radius: 2px;
+      }
+      
+      .progress-indicator {
+        height: 100%;
+        width: 100%;
+        background: #E94560;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="text-content">
+          <div class="title-bar">
+            <h1 class="text-4xl font-bold mb-4">Conclusão</h1>
+          </div>
+          
+          <div class="timeline-container" id="timeline"></div>
+          
+          <div class="conclusion-points">
+            <div class="conclusion-point">
+              <i class="fas fa-fire-alt point-icon highlight"></i>
+              <p class="text-lg">
+                A combustão é um processo fundamental que depende diretamente dos quatro elementos do <span class="highlight font-semibold">tetraedro do fogo</span>: combustível, comburente, calor e reação em cadeia.
+              </p>
+            </div>
+            
+            <div class="conclusion-point">
+              <i class="fas fa-balance-scale point-icon secondary-highlight"></i>
+              <p class="text-lg">
+                Quando ocorre de forma completa, a liberação de energia é maior e os poluentes são menores. Já a combustão incompleta é menos eficiente e mais prejudicial ao meio ambiente.
+              </p>
+            </div>
+            
+            <div class="conclusion-point">
+              <i class="fas fa-lightbulb point-icon" style="color: #4D908E;"></i>
+              <p class="text-lg">
+                O estudo da combustão é essencial para o desenvolvimento de tecnologias mais eficientes e menos poluentes, contribuindo para um futuro energético mais sustentável.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="image-area">
+          <!-- Espaço reservado para imagem a ser adicionada posteriormente no Canva -->
+        </div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Configuração do SVG para a timeline
+        const width = document.querySelector('.timeline-container').offsetWidth;
+        const height = document.querySelector('.timeline-container').offsetHeight;
+        
+        const svg = d3.select('#timeline')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+        
+        // Linha principal da timeline
+        svg.append('line')
+          .attr('x1', 0)
+          .attr('y1', height/2)
+          .attr('x2', width)
+          .attr('y2', height/2)
+          .attr('stroke', '#16213E')
+          .attr('stroke-width', 4);
+        
+        // Eventos da timeline
+        const events = [
+          { year: "Pré-história", label: "Domínio do fogo", icon: "fire", color: "#E94560" },
+          { year: "Séc. XVIII", label: "Revolução Industrial", icon: "industry", color: "#F9C74F" },
+          { year: "Séc. XX", label: "Motores a combustão", icon: "car", color: "#4D908E" },
+          { year: "Séc. XXI", label: "Tecnologias limpas", icon: "leaf", color: "#FFFFFF" }
+        ];
+        
+        // Posições dos eventos na timeline
+        const eventPositions = events.map((event, i) => {
+          return {
+            x: (width / (events.length + 1)) * (i + 1),
+            y: height/2
+          };
+        });
+        
+        // Adicionar círculos para os eventos
+        svg.selectAll('circle')
+          .data(eventPositions)
+          .enter()
+          .append('circle')
+          .attr('cx', d => d.x)
+          .attr('cy', d => d.y)
+          .attr('r', 8)
+          .attr('fill', (d, i) => events[i].color);
+        
+        // Adicionar ícones para os eventos
+        svg.selectAll('foreignObject')
+          .data(eventPositions)
+          .enter()
+          .append('foreignObject')
+          .attr('x', d => d.x - 15)
+          .attr('y', d => d.y - 15)
+          .attr('width', 30)
+          .attr('height', 30)
+          .html((d, i) => `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-${events[i].icon}" style="color: ${events[i].color}; font-size: 14px;"></i>
+          </div>`);
+        
+        // Adicionar anos
+        svg.selectAll('.year-text')
+          .data(eventPositions)
+          .enter()
+          .append('text')
+          .attr('x', d => d.x)
+          .attr('y', d => d.y - 25)
+          .text((d, i) => events[i].year)
+          .attr('text-anchor', 'middle')
+          .attr('fill', '#FFFFFF')
+          .attr('font-family', 'Montserrat')
+          .attr('font-size', '12px')
+          .attr('font-weight', 'bold');
+        
+        // Adicionar descrições
+        svg.selectAll('.label-text')
+          .data(eventPositions)
+          .enter()
+          .append('text')
+          .attr('x', d => d.x)
+          .attr('y', d => d.y + 25)
+          .text((d, i) => events[i].label)
+          .attr('text-anchor', 'middle')
+          .attr('fill', (d, i) => events[i].color)
+          .attr('font-family', 'Montserrat')
+          .attr('font-size', '12px');
+        
+        // Animação para destacar os pontos da timeline
+        function animateTimeline() {
+          svg.selectAll('circle')
+            .transition()
+            .duration(1000)
+            .attr('r', 10)
+            .transition()
+            .duration(1000)
+            .attr('r', 8);
+          
+          setTimeout(animateTimeline, 2000);
+        }
+        
+        animateTimeline();
+      });
+    </script>
+  <script src="navegacao.js"></script></body>
+</html>

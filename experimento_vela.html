@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+      
+      body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #1A1A2E;
+        color: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      
+      .content-area {
+        display: flex;
+        flex: 1;
+      }
+      
+      .text-content {
+        width: 60%;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .image-area {
+        width: 40%;
+        min-height: 600px;
+      }
+      
+      .highlight {
+        color: #E94560;
+      }
+      
+      .secondary-highlight {
+        color: #F9C74F;
+      }
+      
+      .title-bar {
+        border-left: 8px solid #E94560;
+        padding-left: 20px;
+        margin-bottom: 30px;
+        background: linear-gradient(90deg, rgba(233,69,96,0.1) 0%, rgba(22,33,62,0) 100%);
+      }
+      
+      .experiment-steps {
+        display: flex;
+        margin: 20px 0;
+        gap: 15px;
+      }
+      
+      .step {
+        flex: 1;
+        background-color: #16213E;
+        padding: 15px;
+        border-radius: 5px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+      
+      .step:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+      }
+      
+      .step-number {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #E94560;
+        color: #FFFFFF;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+      
+      .step-icon {
+        font-size: 2rem;
+        margin: 15px 0;
+      }
+      
+      .oxygen-level-container {
+        height: 200px;
+        margin: 20px 0;
+      }
+      
+      .progress-bar {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 4px;
+        background: #16213E;
+        border-radius: 2px;
+      }
+      
+      .progress-indicator {
+        height: 100%;
+        width: 62.5%;
+        background: #E94560;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="content-area">
+        <div class="text-content">
+          <div class="title-bar">
+            <h1 class="text-4xl font-bold mb-4">Experimento da Vela e Copo</h1>
+          </div>
+          
+          <p class="text-xl mb-4">
+            Um experimento simples e didático demonstra a <span class="highlight font-semibold">importância do oxigênio</span> na combustão e ilustra na prática o tetraedro do fogo:
+          </p>
+          
+          <div class="experiment-steps">
+            <div class="step" id="step1">
+              <div class="step-number">1</div>
+              <i class="fas fa-fire step-icon secondary-highlight"></i>
+              <p class="text-lg">Vela acesa utiliza o oxigênio do ar</p>
+            </div>
+            
+            <div class="step" id="step2">
+              <div class="step-number">2</div>
+              <i class="fas fa-glass-whiskey step-icon" style="color: #4D908E;"></i>
+              <p class="text-lg">Copo cobre a vela, limitando o oxigênio</p>
+            </div>
+            
+            <div class="step" id="step3">
+              <div class="step-number">3</div>
+              <i class="fas fa-fire-alt step-icon highlight"></i>
+              <p class="text-lg">Chama diminui conforme o oxigênio é consumido</p>
+            </div>
+            
+            <div class="step" id="step4">
+              <div class="step-number">4</div>
+              <i class="fas fa-times-circle step-icon" style="color: #FFFFFF;"></i>
+              <p class="text-lg">Chama se extingue quando o oxigênio acaba</p>
+            </div>
+          </div>
+          
+          <div class="oxygen-level-container">
+            <canvas id="oxygenChart"></canvas>
+          </div>
+          
+          <p class="text-xl mt-4">
+            Este experimento comprova que a <span class="highlight font-semibold">remoção do comburente</span> (oxigênio) interrompe a combustão, mesmo com a presença dos outros elementos do tetraedro do fogo.
+          </p>
+        </div>
+        
+        <div class="image-area">
+          <!-- Espaço reservado para imagem a ser adicionada posteriormente no Canva -->
+        </div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico de nível de oxigênio
+        const ctx = document.getElementById('oxygenChart').getContext('2d');
+        
+        const oxygenChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s'],
+            datasets: [{
+              label: 'Nível de Oxigênio no Copo',
+              data: [100, 90, 75, 60, 45, 30, 15, 5, 0],
+              backgroundColor: 'rgba(77, 144, 142, 0.2)',
+              borderColor: '#4D908E',
+              borderWidth: 3,
+              pointBackgroundColor: '#4D908E',
+              pointBorderColor: '#FFFFFF',
+              pointRadius: 5,
+              tension: 0.3
+            }, {
+              label: 'Intensidade da Chama',
+              data: [100, 95, 85, 70, 50, 30, 10, 0, 0],
+              backgroundColor: 'rgba(233, 69, 96, 0.2)',
+              borderColor: '#E94560',
+              borderWidth: 3,
+              pointBackgroundColor: '#E94560',
+              pointBorderColor: '#FFFFFF',
+              pointRadius: 5,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat'
+                  },
+                  padding: 15
+                }
+              },
+              tooltip: {
+                backgroundColor: '#16213E',
+                titleColor: '#FFFFFF',
+                bodyColor: '#FFFFFF',
+                titleFont: {
+                  family: 'Montserrat',
+                  size: 14
+                },
+                bodyFont: {
+                  family: 'Montserrat',
+                  size: 12
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat'
+                  },
+                  callback: function(value) {
+                    return value + '%';
+                  }
+                },
+                title: {
+                  display: true,
+                  text: 'Percentual',
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat',
+                    size: 12
+                  }
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat'
+                  }
+                },
+                title: {
+                  display: true,
+                  text: 'Tempo',
+                  color: '#FFFFFF',
+                  font: {
+                    family: 'Montserrat',
+                    size: 12
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Interatividade com os passos
+        const steps = document.querySelectorAll('.step');
+        
+        steps.forEach((step, index) => {
+          step.addEventListener('mouseover', function() {
+            highlightStep(index);
+          });
+        });
+        
+        function highlightStep(index) {
+          // Destacar o passo atual
+          steps.forEach((step, i) => {
+            if (i === index) {
+              step.style.transform = 'translateY(-10px)';
+              step.style.boxShadow = '0 10px 20px rgba(233, 69, 96, 0.4)';
+            } else {
+              step.style.transform = 'translateY(0)';
+              step.style.boxShadow = 'none';
+            }
+          });
+          
+          // Atualizar o gráfico para mostrar o ponto correspondente
+          oxygenChart.data.datasets.forEach(dataset => {
+            dataset.pointBackgroundColor = Array(dataset.data.length).fill(dataset.borderColor);
+            dataset.pointBorderColor = Array(dataset.data.length).fill('#FFFFFF');
+            dataset.pointRadius = Array(dataset.data.length).fill(5);
+            
+            if (index < dataset.data.length) {
+              dataset.pointBackgroundColor[index * 2] = '#F9C74F';
+              dataset.pointBorderColor[index * 2] = '#FFFFFF';
+              dataset.pointRadius[index * 2] = 8;
+            }
+          });
+          
+          oxygenChart.update();
+        }
+      });
+    </script>
+  <script src="navegacao.js"></script></body>
+</html>
